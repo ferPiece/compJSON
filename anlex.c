@@ -13,8 +13,6 @@
 /*********** Inclusión de cabecera **************/
 #include "anlex.h"
 
-string nombres_comp [] = {"LITERAL_NUM"};
-
 /************* Variables globales **************/
 
 int consumir;			/* 1 indica al analizador lexico que debe devolver
@@ -74,29 +72,25 @@ void sigLex()
 			id[i]='\0';
 			if (c != EOF){
 				ungetc(c,archivo);}
-			else{
+			else
 			    c=0;
-			    //palabra_reservada(id);
-                t.lexema = id;
-            }			
+			palabra_reservada(id);
+            t.lexema = id;
 			break;
 		}
 		else if (isdigit(c))
 		{
-                printf("Es numero\n");
                 
 				//es un numero
 				i=0;
 				estado=0;
 				acepto=0;
 				id[i]=c;
-				printf("%c\n",c);
 				while(!acepto)
 				{
 					switch(estado){
 					case 0: //una secuencia netamente de digitos, puede ocurrir . o e
 						c=fgetc(archivo);
-                        printf("%c\n",c);
 						if (isdigit(c))
 						{
 							id[++i]=c;
@@ -208,42 +202,43 @@ void sigLex()
 		{
 			ungetc(c,archivo);
 			t.compLex= DOS_PUNTOS;
-            t.lexema = ':';			
-            t.componente = nombres_comp[DOS_PUNTOS - 256]
+            t.lexema = ":";			
+            t.componente = nombres_comp[DOS_PUNTOS - 256];
 			break;
 		}
 		else if (c==',')
 		{
-			t.compLex=',';
-            t.lexema = ',';
-            t.componente = nombres_comp[DOS_PUNTOS - 256]            
+			t.compLex= COMA;
+            t.lexema = "," ;
+            t.componente = nombres_comp[COMA - 256];            
 			break;
 		}		
         else if (c=='[')
 		{
-			t.compLex='[';
-			t.pe=buscar("[");
+			t.compLex=L_CORCHETE;
+			t.lexema = "[";
+            t.componente = nombres_comp[L_CORCHETE - 256];
 			break;
 		}
 		else if (c==']')
 		{
-			t.compLex=']';
-			t.pe=buscar("]");
+			t.compLex=R_CORCHETE;
+			t.lexema = "]";
+            t.componente = nombres_comp[R_CORCHETE - 256];
 			break;
 		}
 		else if (c=='{')
 		{
-            t.compLex=L_CORCHETE;
-            
-			//t.pe=buscar("{");
-            printf("%s",nombres_comp[0]);
-            //t.componente = nombres_comp[t.compLex - 256];
+            t.compLex= L_LLAVE;
+            t.lexema = "{";            
+            t.componente = nombres_comp[L_LLAVE - 256];
 			break;		
         }
         else if (c=='}')
         {
-            t.compLex='}';
-			t.pe=buscar("}");
+            t.compLex= R_LLAVE;
+            t.lexema = "}";            
+            t.componente = nombres_comp[R_LLAVE - 256];
 			break;		
         }
 		else if (c!=EOF)
@@ -252,7 +247,7 @@ void sigLex()
 			error(msg);
 		}
 	}
-	*/
+	
     if (c==EOF)
 	{
 		t.compLex=EOF;
@@ -263,6 +258,23 @@ void sigLex()
 	
 }
 
+void palabra_reservada(char id []){
+   if (strcmp(id,"TRUE") == 0 || strcmp(id,"true") == 0 ) {
+       t.compLex = PR_TRUE;
+       t.lexema = id;
+       t.componente = nombres_comp[PR_TRUE - 256]; 
+   }else if(strcmp(id,"FALSE") == 0 || strcmp(id,"false") == 0 ) {
+       t.compLex = PR_FALSE;
+       t.lexema = id;
+       t.componente = nombres_comp[PR_FALSE - 256]; 
+   }else if(strcmp(id,"NULL") == 0 || strcmp(id,"null") == 0 ) {
+       t.compLex = PR_NULL;
+       t.lexema = id;
+       t.componente = nombres_comp[PR_NULL - 256]; 
+   }
+   else
+       error("WTF");
+}
 int main(int argc,char* args[])
 {
 	// inicializar analizador lexico
@@ -276,8 +288,7 @@ int main(int argc,char* args[])
 		}
 		while (t.compLex!=EOF){
 			sigLex();
-        
-			printf("Lin %d: %s \n",numLinea, t.componente);
+       		printf("Lin %d: %s \n",numLinea, t.componente);
 //exit(1);
 		}
 		fclose(archivo);
