@@ -1,4 +1,1 @@
-true
-null
-false
-[{ 111e+5,45644-e-2}]
+{"nombre":"Ferchu" , "edad":23 , "materias":["compiladores","is2"]}

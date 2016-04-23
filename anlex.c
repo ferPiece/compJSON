@@ -78,6 +78,28 @@ void sigLex()
             t.lexema = id;
 			break;
 		}
+        else if (c=='"'){
+            i=0;
+            do{
+                id[i]=c;
+                i++;
+                c=fgetc(archivo);
+                if(i>=TAMLEX)
+                    error("Longitud de Identificador excede tamaño de buffer");
+                    //exit(1);
+            }while(c != '"');
+            id[i] = c;
+            id[i+1]='\0';
+            /*if(c != EOF)
+                ungetc(c,archivo);
+            else
+                c=0;*/
+            t.compLex = LITERAL_CADENA;
+            t.lexema = id;
+            t.componente = nombres_comp[LITERAL_CADENA - 256];
+            break;
+        }
+
 		else if (isdigit(c))
 		{
                 
@@ -200,7 +222,6 @@ void sigLex()
 
 		else if (c==':')
 		{
-			ungetc(c,archivo);
 			t.compLex= DOS_PUNTOS;
             t.lexema = ":";			
             t.componente = nombres_comp[DOS_PUNTOS - 256];
@@ -289,7 +310,6 @@ int main(int argc,char* args[])
 		while (t.compLex!=EOF){
 			sigLex();
        		printf("Lin %d: %s \n",numLinea, t.componente);
-//exit(1);
 		}
 		fclose(archivo);
 	}else{
