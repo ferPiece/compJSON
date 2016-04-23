@@ -50,12 +50,20 @@ void sigLex()
     
 	while((c=fgetc(archivo))!=EOF)
 	{
-		if (c==' ' || c=='\t')
+		if (c==' '){
+            printf(" ");
 	    	continue;	//eliminar espacios en blanco
+        
+        }        
+        else if(c=='\t'){        
+            printf("\t");
+            continue;
+        }
 		else if(c=='\n')
 		{
 			//incrementar el numero de linea
 			numLinea++;
+            printf("\n");
 			continue;
 		}
 		else if (isalpha(c))
@@ -309,7 +317,7 @@ int main(int argc,char* args[])
 		}
 		while (t.compLex!=EOF){
 			sigLex();
-       		printf("Lin %d: %s \n",numLinea, t.componente);
+       		printf("%s ", t.componente);
 		}
 		fclose(archivo);
 	}else{
