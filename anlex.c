@@ -13,6 +13,7 @@
 /*********** Inclusión de cabecera **************/
 #include "anlex.h"
 
+string nombres_comp [] = {"LITERAL_NUM"};
 
 /************* Variables globales **************/
 
@@ -36,7 +37,7 @@ int numLinea=1;			// Numero de Linea
 
 // Rutinas del analizador lexico
 
-void error(const char* mensaje)
+void error(const string mensaje)
 {
 	printf("Lin %d: Error Lexico. %s.\n",numLinea,mensaje);	
 }
@@ -48,13 +49,11 @@ void sigLex()
 	int acepto=0;
 	int estado=0;
 	char msg[41];
-	entrada e;
     
 	while((c=fgetc(archivo))!=EOF)
 	{
-		
 		if (c==' ' || c=='\t')
-			continue;	//eliminar espacios en blanco
+	    	continue;	//eliminar espacios en blanco
 		else if(c=='\n')
 		{
 			//incrementar el numero de linea
@@ -63,7 +62,7 @@ void sigLex()
 		}
 		else if (isalpha(c))
 		{
-			//es un identificador (o palabra reservada)
+			//palabra reservada
 			i=0;
 			do{
 				id[i]=c;
@@ -73,35 +72,31 @@ void sigLex()
 					error("Longitud de Identificador excede tamaño de buffer");
 			}while(isalpha(c));
 			id[i]='\0';
-			if (c!=EOF)
-				ungetc(c,archivo);
-			else
-				c=0;
-			t.pe=buscar(id);
-			t.compLex=t.pe->compLex;
-			if (t.pe->compLex==-1)
-			{
-				strcpy(e.lexema,id);
-				e.compLex=LITERAL_CADENA;
-				insertar(e);
-				t.pe=buscar(id);
-				t.compLex=LITERAL_CADENA;
-			}
+			if (c != EOF){
+				ungetc(c,archivo);}
+			else{
+			    c=0;
+			    //palabra_reservada(id);
+                t.lexema = id;
+            }			
 			break;
 		}
 		else if (isdigit(c))
 		{
+                printf("Es numero\n");
+                
 				//es un numero
 				i=0;
 				estado=0;
 				acepto=0;
 				id[i]=c;
-				
+				printf("%c\n",c);
 				while(!acepto)
 				{
 					switch(estado){
 					case 0: //una secuencia netamente de digitos, puede ocurrir . o e
 						c=fgetc(archivo);
+                        printf("%c\n",c);
 						if (isdigit(c))
 						{
 							id[++i]=c;
@@ -192,17 +187,11 @@ void sigLex()
 							ungetc(c,archivo);
 						else
 							c=0;
-						id[++i]='\0';
-						acepto=1;
-						t.pe=buscar(id);
-						if (t.pe->compLex==-1)
-						{
-							strcpy(e.lexema,id);
-							e.compLex=LITERAL_NUM;
-							insertar(e);
-							t.pe=buscar(id);
-						}
-						t.compLex=LITERAL_NUM;
+    						id[++i]='\0';
+    						acepto=1;
+    						t.compLex=LITERAL_NUM;
+                            t.lexema = id;
+                            t.componente = nombres_comp[LITERAL_NUM - 256]; 
 						break;
 					case -1:
 						if (c==EOF)
@@ -214,18 +203,20 @@ void sigLex()
 				}
 			break;
 		}
+
 		else if (c==':')
 		{
 			ungetc(c,archivo);
-			t.compLex=':';
-			t.pe=buscar(":");
-			
+			t.compLex= DOS_PUNTOS;
+            t.lexema = ':';			
+            t.componente = nombres_comp[DOS_PUNTOS - 256]
 			break;
 		}
 		else if (c==',')
 		{
 			t.compLex=',';
-			t.pe=buscar(",");
+            t.lexema = ',';
+            t.componente = nombres_comp[DOS_PUNTOS - 256]            
 			break;
 		}		
         else if (c=='[')
@@ -242,8 +233,11 @@ void sigLex()
 		}
 		else if (c=='{')
 		{
-            t.compLex='{';
-			t.pe=buscar("{");
+            t.compLex=L_CORCHETE;
+            
+			//t.pe=buscar("{");
+            printf("%s",nombres_comp[0]);
+            //t.componente = nombres_comp[t.compLex - 256];
 			break;		
         }
         else if (c=='}')
@@ -258,12 +252,13 @@ void sigLex()
 			error(msg);
 		}
 	}
-	if (c==EOF)
+	*/
+    if (c==EOF)
 	{
 		t.compLex=EOF;
 		// strcpy(e.lexema,"EOF");
-		sprintf(e.lexema,"EOF");
-		t.pe=&e;
+		printf("EOF\n");
+		exit(1);
 	}
 	
 }
@@ -271,9 +266,6 @@ void sigLex()
 int main(int argc,char* args[])
 {
 	// inicializar analizador lexico
-
-	initTabla();
-	initTablaSimbolos();
 	
 	if(argc > 1)
 	{
@@ -284,7 +276,9 @@ int main(int argc,char* args[])
 		}
 		while (t.compLex!=EOF){
 			sigLex();
-			printf("Lin %d: %s -> %d\n",numLinea,t.pe->lexema,t.compLex);
+        
+			printf("Lin %d: %s \n",numLinea, t.componente);
+//exit(1);
 		}
 		fclose(archivo);
 	}else{
