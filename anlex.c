@@ -37,7 +37,7 @@ int numLinea=1;			// Numero de Linea
 
 void error(const string mensaje)
 {
-	printf("Lin %d: Error Lexico. %s.\n",numLinea,mensaje);	
+	printf("\nLin %d: Error Lexico. %s.\n",numLinea,mensaje);	
 }
 
 void sigLex()
@@ -76,6 +76,7 @@ void sigLex()
 				c=fgetc(archivo);
 				if (i>=TAMLEX)
 					error("Longitud de Identificador excede tamaño de buffer");
+                    
 			}while(isalpha(c));
 			id[i]='\0';
 			if (c != EOF){
@@ -87,6 +88,7 @@ void sigLex()
 			break;
 		}
         else if (c=='"'){
+            //cadena
             i=0;
             do{
                 id[i]=c;
@@ -94,8 +96,7 @@ void sigLex()
                 c=fgetc(archivo);
                 if(i>=TAMLEX)
                     error("Longitud de Identificador excede tamaño de buffer");
-                    //exit(1);
-            }while(c != '"');
+            }while(c != '"' && i < TAMLEX);
             id[i] = c;
             id[i+1]='\0';
             /*if(c != EOF)
@@ -162,6 +163,7 @@ void sigLex()
 						else if(tolower(c)=='e')
 						{
 							id[++i]=c;
+                            printf("%c = ",c);
 							estado=3;
 						}
 						else
@@ -221,11 +223,12 @@ void sigLex()
 						if (c==EOF)
 							error("No se esperaba el fin de archivo");
 						else
-							error(msg);
-						exit(1);
+                            sprintf(msg,"%c no esperado",c);
+			                error(msg);
+                            acepto=1;
+                        break;
 					}
 				}
-			break;
 		}
 
 		else if (c==':')
@@ -273,6 +276,9 @@ void sigLex()
 		else if (c!=EOF)
 		{
 			sprintf(msg,"%c no esperado",c);
+            while(c != '\n'){
+                c=fgetc(archivo);
+            }
 			error(msg);
 		}
 	}
