@@ -1,7 +1,7 @@
 {  
    "personas":[  
       {  
-         "ci":1234567",
+         "ci":1234567,
          "nombre":"Julio Pérez",
          "casado":false,
          "hijos":[  
@@ -9,7 +9,7 @@
          ]
       },
       {  
-         "ci":4343e-s323 
+         "ci":7654321,
          "nombre":"Juan Gómez",
          "casado":true,
          "hijos":[  
