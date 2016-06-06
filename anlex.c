@@ -51,16 +51,16 @@ void sigLex()
 	while((c=fgetc(archivo))!=EOF)
 	{
 		if (c==' ')
-            printf(" ");
+            continue;
                
         else if(c=='\t')        
-            printf("\t");
+            continue;
 
 		else if(c=='\n')
 		{
 			//incrementar el numero de linea
 			numLinea++;
-            printf("\n");
+            //printf("\n");
 		}
 
 		else if (isalpha(c))
@@ -311,8 +311,6 @@ void sigLex()
     if (c==EOF)
 	{
 		t.compLex=EOF;
-		printf("EOF\n");
-		exit(1);
 	}
 	
 }
@@ -338,7 +336,7 @@ void palabra_reservada(char id []){
        	error(cad);
     }
 }
-int main(int argc,char* args[])
+/*int main(int argc,char* args[])
 {
 	// inicializar analizador lexico
 	
@@ -361,4 +359,4 @@ int main(int argc,char* args[])
 	}
 
 	return 0;
-}
+}*/
