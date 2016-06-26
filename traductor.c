@@ -23,8 +23,9 @@ void string_sin_comillas(char* cadena);
 int tabulacion=0;
 void print_tab();
 
+
 void string_sin_comillas(char* cadena){
-    char string[20];
+    char string[TAMLEX];
     strcpy(string,cadena);
     int i=1;
     while(string[i] != '"'){
@@ -58,22 +59,28 @@ void element_trad(){
 /*array -> [ arrayB*/
 void array_trad(){  
     if(t.compLex == L_CORCHETE){
-        printf("\n");
+        
         match(L_CORCHETE);
         arrayB_trad();
+
     }
 }
 
 /*array' -> element-list ] | ]*/
 void arrayB_trad(){
-    tabulacion=4;
-    print_tab();
+    
     if(t.compLex == L_CORCHETE || t.compLex == L_LLAVE){
+        printf("\n");
+        print_tab();
         printf("<item>\n");
+        tabulacion+=4;
         element_list_trad();
         match(R_CORCHETE);
+        print_tab();
+        printf("</item>\n");
     }
     else if(t.compLex == R_CORCHETE){
+        tabulacion-=4;
         match(R_CORCHETE);
     }
 
@@ -84,6 +91,7 @@ void element_list_trad(){
     if(t.compLex == L_CORCHETE || t.compLex == L_LLAVE){
         element_trad();
         element_listB_trad();
+        
     }
 }
 
@@ -91,15 +99,22 @@ void element_list_trad(){
 /*element-list' ->  ,element element-list' | ε*/
 void element_listB_trad(){
     if(t.compLex == R_CORCHETE){ 
+        //tabulacion-=4;
         return;
     }
     
-    if(t.compLex == COMA){
+    if(t.compLex == COMA){  
         match(COMA);
+        //  tabulacion-=4;
+        print_tab();
+        printf("</item>\n");
+        print_tab();
         printf("<item>\n");
+        tabulacion+=4;
         element_trad();
         element_listB_trad();
-        printf("</item>\n");
+
+        
     }
     
 }
@@ -119,9 +134,11 @@ void objectB_trad(){
     if(t.compLex == LITERAL_CADENA){
         attributes_list_trad();
         match(R_LLAVE);
+
     }
     else if(t.compLex == R_LLAVE){
-       match(R_LLAVE);
+        //tabulacion-=4;
+        match(R_LLAVE);
     }
 }
 
@@ -137,6 +154,7 @@ void attributes_list_trad(){
 void attributes_listB_trad(){
  
     if (t.compLex == R_LLAVE){
+        tabulacion-=4;
         return;
     }
   
@@ -150,7 +168,6 @@ void attributes_listB_trad(){
 /*   attribute -> attribute-name : attribute-value*/
 void attribute_trad(){
     if(t.compLex == LITERAL_CADENA){
-        tabulacion += 4;
         print_tab();
         char lexema[TAMLEX];
         strcpy(lexema,t.lexema);
@@ -161,8 +178,7 @@ void attribute_trad(){
         attribute_value_trad();
         printf("</");
         string_sin_comillas(lexema);
-        printf(">\n");
-
+        printf(">\n");    
     }
 }
 
@@ -178,7 +194,9 @@ void attribute_name_trad(){
 void attribute_value_trad(){
 
     if(t.compLex == L_CORCHETE || t.compLex == L_LLAVE){
+        tabulacion +=4;
         element_trad();
+
     }
     else if(t.compLex == LITERAL_CADENA){
         printf("%s",t.lexema);
@@ -214,9 +232,13 @@ int main (int argc,char* args[]){
             exit(1);
         }
         sigLex();
-        json_trad();
-        if(accept) printf("Correctamente sintactico \n");
-        fclose(archivo);
+        json();
+        if(accept){
+            fclose(archivo);
+            archivo=fopen(args[1],"rt");
+            sigLex();
+            json_trad();
+        }
     }else{
         printf("Debe pasar como parametro el path al archivo fuente.\n");
         exit(1);
