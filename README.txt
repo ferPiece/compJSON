@@ -7,7 +7,7 @@ Fernando López
 
 Comandos de ejecución
 ---------------------
-gcc parser.c -o traductor
+gcc traductor.c -o traductor
 ./traductor fuente.txt
 
 Link del repositorio
